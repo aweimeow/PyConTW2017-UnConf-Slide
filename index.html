@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>寫個 bot 來幫你刷榜</title>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="shower/themes/ribbon/styles/screen-16x10.css">
+    <style>
+      img {
+        display: block;
+        margin: 0 auto;
+        box-shadow:4px 4px 3px rgba(20%,20%,40%,0.5);
+      }
+      img.cover {
+        width:1024px;
+        height:640px;
+      }
+      img.normal {
+        height: 400px;
+      }
+
+      .slide h2 {
+        font-size: 50px;
+      }
+
+      .slide {
+        font-size: 34px;
+      }
+
+      .cover h2 {
+        margin:150px 0 0;
+        color:#333;
+        text-align:center;
+        font-size:70px;
+      }
+
+      .cover h4 {
+        margin: 20px 0 0;
+        text-align: center;
+        font-weight: bold;
+        color: #555;
+        font-size:36px;
+      }
+
+    </style>
+  </head>
+  <body class="shower list">
+
+    <section class="slide cover">
+      <h2>懶得答題？<br>寫個 bot 來幫你刷榜</h2>
+      <h4 style="margin: 60px 0 0;">陳威祐 aweimeow</h4>
+    </section>
+
+    <section class="slide">
+      <h2>Who am I</h2>
+      <ul>
+        <li>陳威祐 / 阿威 / Aweimeow</li>
+        <li><i class="fa fa-github" style="margin: 0 70px 0;"> aweimeow</i></li>
+        <li><i class="fa fa-rss" style="margin: 0 70px 0;"> <a href="https://blog.aweimeow.tw/">https://blog.aweimeow.tw</a></i></li>
+      </ul>
+    </section>
+
+    <section class="slide">
+      <h2 style="font-size: 34px;">大家都知道，在這一次的 PyCon TW 的大會遊戲 ...</h2>
+      <img class="normal" src="pictures/answer_question.png"/>
+    </section>
+
+    <section class="slide cover">
+      <h2>有人還沒有玩過嗎？</h2>
+      <h4>還沒玩過卻走進這場，一定是搞錯什麼了</h4>
+    </section>
+
+    <section class="slide">
+      <h2>Outline</h2>
+      <ol>
+        <li>第一版的 bot</li>
+        <li>有了資料庫的 bot</li>
+        <li>在正確的時間 <code>time.sleep</code> 的 bot</li>
+        <li>發現 Bug 的 bot <s>(((o(*ﾟ▽ﾟ*)o)))</s></li>
+        </li>
+      </ol>
+    </section>
+
+    <section class="slide">
+      <h2>做到完美的自動答題我們需要什麼？</h2>
+      <ul>
+        <li>可以在機器人問問題時回答</li>
+        <li>不只回答，還要把答案記起來</li>
+        <li>不能回太快，機器人會掛掉</li>
+      </ul>
+    </section>
+
+    <section class="slide cover">
+      <h2>不要重複造輪子</h2>
+      <h4>而且還是 <font style="font-size: 50px">很大</font> 的輪子</h4>
+    </section>
+
+    <section class="slide cover">
+      <h2>機器人對答 API - fbchat</h2>
+      <h4><a href="https://github.com/carpedm20/fbchat">carpedm20/fbchat</a></h4>
+    </section>
+
+    <section class="slide">
+      <h2>fbchat</h2>
+      <img style="width: 800px;" src="pictures/fbchat_get_msg.png"/>      
+    </section>
+
+    <section class="slide">
+      <h2>fbchat</h2>
+      <img style="width: 800px;" src="pictures/fbchat_send_msg.png"/>      
+    </section>
+
+    <section class="slide cover">
+      <h2 style="font-size: 60px;">但這個套件只能用來一般對話</h2>
+      <h4>並沒有辦法支援 FB 的按鈕選項點選</h4>
+    </section>
+
+    <section class="slide">
+      <h2>自己的功能自己改</h2>
+        <img src="pictures/postdata.png" class="normal"/>
+      </h2>
+    </section>
+
+    <section class="slide">
+      <h2>自己的功能自己改</h2>
+      <code>message = message.replace('"', '\\"')</code>
+      <code>data['platform_xmd'] = '{"quick_replies":{"content_type":"text","title":"%s","payload":"%s","image_url":null,"data":null},"ignore_for_webhook":false}' % (message, message)</code>
+    </section>
+
+    <section class="slide cover">
+      <h2>都能發訊息了</h2>
+      <h4>離自動答題也不遠了對吧</h4>
+    </section>
+
+    <section class="slide cover">
+      <h2>Talk 到此結束 ... 咦？</h2>
+    </section>
+
+    <section class="slide">
+      <h2>把對答拆成三個部分</h2>
+      <ol>
+        <li>題目</li>
+        <li>選項</li>
+        <li>答案狀態</li>
+      </ol>
+    </section>
+
+    <section class="slide">
+      <h2>再看一次剛剛的圖片</h2>
+      <img class="normal" src="pictures/answer_question_part.png"/>
+    </section>
+
+    <section class="slide">
+      <h2>身為工程師要怎麼做？</h2>
+      <ol>
+        <li>拿到題目</li>
+        <li>送出答案</li>
+        <li>檢查狀態（If 答案是猜的）</li>
+      </ol>
+    </section>
+
+    <section class="slide cover">
+      <h2 style="font-size: 60px;">有了資料庫的 bot 華麗登場！</h2>
+    </section>
+
+    <section class="slide">
+      <h2>資料庫長這個樣子</h2>
+      <img src="pictures/database.png" class="normal"/>
+    </section>
+
+    <section class="slide cover">
+      <h2>調整 time.sleep 的間隔</h2>
+      <h4>答題慢怎麼贏</h4>
+      <h4>◢▆▅▄▃_崩╰(〒皿〒)╯潰_▃▄▅▆◣</h4>
+    </section>
+
+    <section class="slide">
+      <h2>我的 Code 要睡到什麼時候？</h2>
+      <ul>
+        <li>題目讀不出來的時候睡！</li>
+        <li>答案剛送出去的時候也睡！</li>
+        <li>沒答過的題目確定答案也要睡！</li>
+      </ul>
+
+      <h4>回答一次大約會耗費 5 秒</h4>
+    </section>
+
+    <section class="slide cover">
+      <h2>要做壞事前，先看程式碼</h2>
+      <h4>關於猜謎機器人的程式邏輯 Bug</h4>
+    </section>
+
+    <section class="slide">
+      <h2>def add_user_im</h2>
+      <img src="pictures/bug.png" class="normal"/>
+      ref: <a href="https://github.com/pycontw/quizbot-2017/blob/master/quizzler/users.py#L127">pycontw/quizbot-2017 - quizzler/users.py</a>
+    </section>
+
+    <section class="slide cover">
+      <h2>わい！你是有很多帳號的朋友呢！</h2>
+      <h4>因為沒檢查，所以可以一個 Mail 對應多個 FB</h4>
+    </section>
+
+    <section class="slide">
+      <h2>Ranking until Day3 10:00 a.m.</h2>
+      <img src="pictures/ranking.png" style="width: 800px;"//>
+    </section>
+
+    <section class="slide">
+      <h2>把機器人玩壞之後</h2>
+      <img src="pictures/broken.png" class="normal">
+    </section>
+
+    <section class="slide">
+      <h2>把機器人玩壞之後</h2>
+      <img src="pictures/broken2.png" style="width: 450px;">
+    </section>    
+
+    <section class="slide cover">
+      <h2>Live Demo</h2>
+      <h4>If we have enough time ... QQ</h4>
+    </section>
+
+    <section class="slide">
+      <h2>Related Link</h2>
+      <ul style="font-size: 30px;">
+        <li>Slide: <a href="https://aweimeow.tw/pycontw2017">https://aweimeow.tw/pycontw2017</a></li>
+        <li>Bot Code: <a href="https://github.com/aweimeow/PyConTW2017-Quiz-Solver">aweimeow/PyConTW2017-Quiz-Solver</a></li>
+        <li>Slide Code: <a href="https://github.com/aweimeow/PyConTW2017-UnConf-Slide">PyConTW2017-UnConf-Slide</a></li>
+      </ul>
+    </section>
+
+    <section class="slide cover">
+      <h2>Q & A</h2>
+      <h4>Any questions and suggestions are welecome !</h4>
+    </section>
+    <!--
+      To hide progress bar from entire presentation
+      just remove “progress” element.
+      -->
+    <div class="progress"></div>
+    <script src="shower/shower.min.js"></script>
+    <!-- Copyright © 2015 Yours Truly, Famous Inc. -->
+    <!-- Photos by John Carey, fiftyfootshadows.net -->
+  </body>
+</html>
